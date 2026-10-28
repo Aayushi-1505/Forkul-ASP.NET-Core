@@ -1,0 +1,37 @@
+@model CartViewModel
+<section class="shell inner-page cart-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a asp-controller="Home" asp-action="Index">Home</a><span>/</span><span>Your cart</span></nav>
+    <div class="inner-page-heading"><span class="eyebrow">ALMOST THE GOOD PART</span><h1>Your <em>cart.</em></h1><p>@(Model.Items.Count == 0 ? "Your next favorite meal is waiting to be found." : $"{Model.Count} delicious {(Model.Count == 1 ? "item" : "items")} waiting for you.")</p></div>
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty-state cart-empty"><div class="empty-illustration" aria-hidden="true">♡</div><h2>Nothing in here just yet.</h2><p>Come on in, the menu is full of good things.</p><a class="btn btn-dark" asp-controller="Menu" asp-action="Index">Explore the menu <span class="btn-arrow">↗</span></a></div>
+    }
+    else
+    {
+        <div class="cart-layout"><div class="cart-items"><div class="cart-items-header"><h2>Your picks</h2><a asp-controller="Menu" asp-action="Index">+ Add more food</a></div>
+            @foreach (var item in Model.Items)
+            {
+                <article class="cart-item">
+                    <img src="@item.Product.ImageUrl" alt="@item.Product.Name" />
+                    <div class="cart-item-info">
+                        <span class="product-overline"><span class="veg-dot @(item.Product.IsVegetarian ? "" : "nonveg")"></span> @item.Product.Category.Name</span>
+                        <a asp-controller="Menu" asp-action="Details" asp-route-slug="@item.Product.Slug" class="cart-item-name">@item.Product.Name</a>
+                        @if (item.SpiceLevel != "None") { <span class="cart-custom-line">@item.SpiceLevel spice</span> }
+                        @if (item.AddOns.Count > 0) { <span class="cart-custom-line">+ @string.Join(", ", item.AddOns.Select(a => a.Name))</span> }
+                        @if (!string.IsNullOrEmpty(item.SpecialInstructions)) { <span class="cart-custom-line cart-note">“@item.SpecialInstructions”</span> }
+                        <span class="cart-unit-price">₹@item.UnitPrice.ToString("0") each @(item.AddOns.Count > 0 ? "· includes extras" : "")</span>
+                        <form asp-controller="Cart" asp-action="Remove" method="post" class="remove-form"><input type="hidden" name="lineId" value="@item.LineId" /><button type="submit">Remove</button></form>
+                    </div>
+                    <div class="cart-item-end"><strong>₹@item.LineTotal.ToString("0")</strong><form asp-controller="Cart" asp-action="Update" method="post" class="quantity-picker cart-quantity"><input type="hidden" name="lineId" value="@item.LineId" /><button type="submit" name="quantity" value="@(item.Quantity - 1)" aria-label="Remove one @item.Product.Name">−</button><span>@item.Quantity</span><button type="submit" name="quantity" value="@(item.Quantity + 1)" aria-label="Add one @item.Product.Name">+</button></form></div>
+                </article>
+            }
+        </div><aside class="order-summary"><h2>Order summary</h2>
+            @if (Model.AwayFromFreeDelivery > 0)
+            {
+                <div class="delivery-progress"><p>You're <strong>₹@Model.AwayFromFreeDelivery.ToString("0")</strong> away from free delivery!</p><div class="progress-track"><div style="width:@Math.Min(100, (double)(Model.Subtotal / 599 * 100)).ToString("0", System.Globalization.CultureInfo.InvariantCulture)%"></div></div></div>
+            }
+            else { <div class="free-delivery-message">✳ You've unlocked free delivery!</div> }
+            <div class="summary-row"><span>Subtotal (@Model.Count items)</span><strong>₹@Model.Subtotal.ToString("0")</strong></div><div class="summary-row"><span>Delivery</span><strong>@(Model.DeliveryFee == 0 ? "FREE" : "₹" + Model.DeliveryFee.ToString("0"))</strong></div><div class="summary-total"><span>Total</span><strong>₹@Model.Total.ToString("0")</strong></div><a asp-controller="Checkout" asp-action="Index" class="btn btn-dark summary-checkout">Continue to checkout <span class="btn-arrow" aria-hidden="true">↗</span></a><p class="summary-note">Secure order placement · No online payment in this demo</p>
+        </aside></div>
+    }
+</section>

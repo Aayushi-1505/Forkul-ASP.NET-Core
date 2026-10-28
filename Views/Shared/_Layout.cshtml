@@ -1,0 +1,74 @@
+@inject Forkful.Services.CartService Cart
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Forkful makes fresh, feel-good food for every craving. Explore the menu, order online and enjoy good food in Surat." />
+    <meta name="theme-color" content="#f8f6f0" />
+    <title>@ViewData["Title"] · forkful.</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="announcement">Good food, good mood. <span class="announcement-divider">✳</span> Free delivery on orders over ₹599</div>
+    <header class="site-header">
+        <div class="shell nav-wrap">
+            <a class="brand" asp-controller="Home" asp-action="Index" aria-label="forkful home">forkful<span>.</span></a>
+            <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+                <a asp-controller="Home" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "nav-active" : "")">Home</a>
+                <a asp-controller="Menu" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Menu" ? "nav-active" : "")">Explore menu</a>
+                <a asp-controller="Home" asp-action="Index" asp-fragment="story">Our story</a>
+                <a asp-controller="Menu" asp-action="Index" asp-route-category="non-veg" class="nav-nonveg">Non-Veg <span class="nav-nonveg-dot" aria-hidden="true"></span></a>
+            </nav>
+            <div class="nav-actions">
+                <div class="location-label" title="Made in Surat, Gujarat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                    <span>Surat, Gujarat</span>
+                </div>
+                <a class="cart-link" asp-controller="Cart" asp-action="Index" aria-label="View cart">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16l-1.1 12H5.1L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>
+                    <span class="cart-label">Cart</span><span class="cart-count" data-cart-count>@Cart.Count</span>
+                </a>
+                <button class="mobile-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">@RenderBody()</main>
+
+    <footer class="site-footer">
+        <div class="shell footer-grid">
+            <div class="footer-brand-col">
+                <a class="brand brand-light" asp-controller="Home" asp-action="Index">forkful<span>.</span></a>
+                <p>Food for the moments that matter. Freshly made, thoughtfully served, always something to look forward to.</p>
+                <span class="footer-location">Made with care in Surat, India.</span>
+            </div>
+            <div class="footer-links"><h4>Explore</h4>
+                <a asp-controller="Home" asp-action="Index">Home</a>
+                <a asp-controller="Menu" asp-action="Index">Full menu</a>
+                <a asp-controller="Cart" asp-action="Index">Your cart</a>
+                <a asp-controller="Home" asp-action="Index" asp-fragment="story">Our story</a>
+            </div>
+            <div class="footer-links"><h4>Browse by taste</h4>
+                <a asp-controller="Menu" asp-action="Index" asp-route-category="bowls">Fresh bowls</a>
+                <a asp-controller="Menu" asp-action="Index" asp-route-category="pizza">Pizza</a>
+                <a asp-controller="Menu" asp-action="Index" asp-route-category="non-veg">Non-Veg favorites</a>
+                <a asp-controller="Menu" asp-action="Index" asp-route-category="drinks">Drinks</a>
+            </div>
+            <div class="footer-contact"><h4>Hungry yet?</h4>
+                <p>Your next favorite meal is only a few clicks away.</p>
+                <a class="footer-button" asp-controller="Menu" asp-action="Index">Browse the menu <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+        <div class="shell footer-bottom"><span>© @DateTime.Now.Year forkful. An educational food-ordering demo.</span><span>Good things are made fresh. ✳</span></div>
+    </footer>
+    <div class="toast-message" id="toast-message" role="status" aria-live="polite" data-message="@TempData["Toast"]"></div>
+    <script src="~/vendor/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

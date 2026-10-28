@@ -1,0 +1,19 @@
+@model Order
+<section class="shell success-page"><div class="success-card">
+    <div class="success-icon" aria-hidden="true">✓</div><span class="eyebrow">HAPPY FOOD IS ON ITS WAY</span>
+    <h1>Order received,<br /><em>@Model.CustomerName.Split(' ')[0]!</em></h1>
+    <p>Thanks for choosing forkful. Your made-your-way order is in the kitchen queue and we're getting everything ready with care.</p>
+    <div class="order-number">Order reference <strong>#@Model.PublicId.ToString("N")[..8].ToUpperInvariant()</strong></div>
+    <div class="success-steps"><div><span class="done">✓</span><strong>Order placed</strong></div><span class="success-line"></span><div><span>✳</span><strong>Preparing fresh</strong></div><span class="success-line"></span><div><span>⌂</span><strong>@(Model.DeliveryType == "Pickup" ? "Ready to pick up" : "On the way")</strong></div></div>
+    <div class="success-details"><h2>Your order</h2>
+        @foreach (var item in Model.Items)
+        {
+            <div class="success-item-row"><div><strong>@item.Quantity × @item.ProductName</strong>
+                @if (!string.IsNullOrEmpty(item.SpiceLevel) || !string.IsNullOrEmpty(item.AddOns)) { <small>@string.Join(" · ", new[] { item.SpiceLevel is null ? null : item.SpiceLevel + " spice", item.AddOns }.Where(s => !string.IsNullOrEmpty(s)))</small> }
+                @if (!string.IsNullOrEmpty(item.SpecialInstructions)) { <small>“@item.SpecialInstructions”</small> }
+            </div><strong>₹@((item.Quantity * item.UnitPrice).ToString("0"))</strong></div>
+        }
+        <div class="summary-row"><span>@Model.DeliveryType</span><strong>@(Model.DeliveryFee == 0 ? "FREE" : "₹" + Model.DeliveryFee.ToString("0"))</strong></div><div class="summary-total"><span>Total</span><strong>₹@Model.Total.ToString("0")</strong></div>
+    </div>
+    <a asp-controller="Menu" asp-action="Index" class="btn btn-dark">Back to the menu <span class="btn-arrow">↗</span></a><small class="success-demo-note">This is a classroom demonstration, not a real restaurant order.</small>
+</div></section>

@@ -1,0 +1,28 @@
+@model Product
+<article class="product-card">
+    <div class="product-image-wrap">
+        <a asp-controller="Menu" asp-action="Details" asp-route-slug="@Model.Slug" class="product-image-link" aria-label="View @Model.Name">
+            <img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy" />
+        </a>
+        @if (!Model.IsVegetarian)
+        {
+            <span class="product-tag nonveg-tag"><span class="veg-dot nonveg"></span> Non-Veg</span>
+        }
+        else if (Model.IsFeatured)
+        {
+            <span class="product-tag">Crowd favorite</span>
+        }
+        <button type="button" class="favorite-button" data-favorite-id="@Model.Id" aria-label="Save @Model.Name to favorites" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.9a5.5 5.5 0 0 0-7.8 0L12 6l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.3a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        </button>
+    </div>
+    <div class="product-card-body">
+        <div class="product-overline"><span class="veg-dot @(Model.IsVegetarian ? "" : "nonveg")" title="@(Model.IsVegetarian ? "Vegetarian" : "Non-vegetarian")"></span>@Model.Category?.Name <span class="meta-separator">·</span> @Model.PrepMinutes min</div>
+        <a class="product-name" asp-controller="Menu" asp-action="Details" asp-route-slug="@Model.Slug">@Model.Name</a>
+        <p class="product-description">@Model.Description</p>
+        <div class="product-card-bottom">
+            <div><span class="product-price">₹@Model.Price.ToString("0")</span><span class="product-rating"><span aria-hidden="true">★</span> @Model.Rating.ToString("0.0")</span></div>
+            <a class="add-button customize-card-button" asp-controller="Menu" asp-action="Details" asp-route-slug="@Model.Slug" aria-label="Customize @Model.Name"><span aria-hidden="true">✳</span> Customize</a>
+        </div>
+    </div>
+</article>

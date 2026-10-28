@@ -1,0 +1,49 @@
+@model Product
+@inject Forkful.Services.DishCustomizationService Customizer
+@{
+    var addOns = Customizer.GetAddOns(Model);
+    var hasSpice = Customizer.SupportsSpice(Model);
+}
+<section class="shell details-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a asp-controller="Home" asp-action="Index">Home</a><span>/</span><a asp-controller="Menu" asp-action="Index">Menu</a><span>/</span><a asp-controller="Menu" asp-action="Index" asp-route-category="@Model.Category.Slug">@Model.Category.Name</a><span>/</span><span>@Model.Name</span></nav>
+    <div class="details-grid">
+        <div class="details-image"><img src="@Model.ImageUrl" alt="@Model.Name" /><span class="details-image-caption">Fresh from the forkful kitchen ✳</span></div>
+        <div class="details-info">
+            <span class="eyebrow">@Model.Category.Name · MADE FRESH</span>
+            <h1>@Model.Name</h1>
+            <div class="details-meta"><span class="detail-rating">★ @Model.Rating.ToString("0.0")</span><span>✳ @Model.PrepMinutes min preparation</span><span><i class="veg-dot @(Model.IsVegetarian ? "" : "nonveg")"></i> @(Model.IsVegetarian ? "Vegetarian" : "Non-vegetarian")</span></div>
+            <p class="details-description">@Model.Description</p>
+            <div class="details-price-line"><strong>₹@Model.Price.ToString("0")</strong><span>Starting price · choose your extras below</span></div>
+            <form asp-controller="Cart" asp-action="Add" method="post" class="add-to-cart-form customize-form" data-customization-form data-base-price="@Model.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="returnUrl" value="@(Context.Request.Path.Value + Context.Request.QueryString.Value)" />
+                <div class="customize-panel">
+                    <div class="customize-heading"><span class="customize-heading-icon" aria-hidden="true">✳</span><div><h2>Make it your way</h2><p>A few little choices to make this dish yours.</p></div></div>
+                    @if (hasSpice)
+                    {
+                        <fieldset class="custom-group"><legend>Spice level <span>Choose your heat</span></legend><div class="spice-options">
+                            @foreach (var level in Forkful.Services.DishCustomizationService.SpiceLevels)
+                            {
+                                <label class="spice-choice"><input type="radio" name="spiceLevel" value="@level" checked="@(level == "Medium")" /><span>@level</span></label>
+                            }
+                        </div></fieldset>
+                    }
+                    else
+                    {
+                        <input type="hidden" name="spiceLevel" value="None" />
+                    }
+                    <fieldset class="custom-group"><legend>Add something extra <span>Optional · priced per dish</span></legend><div class="addon-list">
+                        @foreach (var option in addOns)
+                        {
+                            <label class="addon-choice"><input type="checkbox" name="addOnCodes" value="@option.Code" data-addon-price="@option.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)" /><span class="addon-check" aria-hidden="true">✓</span><span class="addon-name">@option.Name</span><strong>+₹@option.Price.ToString("0")</strong></label>
+                        }
+                    </div></fieldset>
+                    <div class="custom-group custom-note"><label for="dish-instructions">Special instructions <span>Optional</span></label><textarea id="dish-instructions" name="specialInstructions" maxlength="200" rows="2" placeholder="No onions? Sauce on the side? Let us know."></textarea><small>Tell us anything you'd like our kitchen to know.</small></div>
+                </div>
+                <div class="custom-total"><span>Estimated total <small>With your selections</small></span><strong data-custom-total>₹@Model.Price.ToString("0")</strong></div>
+                <div class="details-buy"><div class="quantity-picker"><button type="button" data-qty-minus aria-label="Decrease quantity">−</button><input type="number" name="quantity" value="1" min="1" max="20" aria-label="Quantity" /><button type="button" data-qty-plus aria-label="Increase quantity">+</button></div><button type="submit" class="btn btn-dark">Add to cart <span class="btn-arrow" aria-hidden="true">↗</span></button></div>
+                <p class="details-footnote">Extras are charged per dish. Free local delivery when your order reaches ₹599.</p>
+            </form>
+        </div>
+    </div>
+</section>

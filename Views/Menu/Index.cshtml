@@ -1,0 +1,83 @@
+@model MenuViewModel
+<section class="page-intro menu-intro"><div class="shell"><span class="eyebrow">THE FORKFUL MENU</span><div class="page-intro-row"><div><h1>A little something<br />for <em>everyone.</em></h1><p>Big flavors, fresh ingredients, and a reason to look forward to your next meal. Every dish can be made your way.</p></div><div class="intro-stamp" aria-hidden="true"><span>MADE FRESH</span><strong>✳</strong><span>WITH LOVE</span></div></div></div></section>
+<section class="shell menu-content" aria-label="Browse food">
+    <div class="menu-toolbar">
+        <form asp-controller="Menu" asp-action="Index" method="get" class="search-form" role="search">
+            @if (!string.IsNullOrEmpty(Model.Category)) { <input type="hidden" name="category" value="@Model.Category" /> }
+            @if (Model.Diet != "all") { <input type="hidden" name="diet" value="@Model.Diet" /> }
+            @if (Model.Sort != "popular") { <input type="hidden" name="sort" value="@Model.Sort" /> }
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+            <input type="search" name="q" value="@Model.Search" placeholder="Search something delicious..." aria-label="Search the menu" />
+            <button type="submit" aria-label="Search">Search</button>
+        </form>
+        <form asp-controller="Menu" asp-action="Index" method="get" class="sort-form">
+            @if (!string.IsNullOrEmpty(Model.Category)) { <input type="hidden" name="category" value="@Model.Category" /> }
+            @if (!string.IsNullOrEmpty(Model.Search)) { <input type="hidden" name="q" value="@Model.Search" /> }
+            @if (Model.Diet != "all") { <input type="hidden" name="diet" value="@Model.Diet" /> }
+            <label for="sort">Sort by</label><select id="sort" name="sort" data-auto-submit>
+                <option value="popular" selected="@(Model.Sort == "popular")">Most popular</option>
+                <option value="price-low" selected="@(Model.Sort == "price-low")">Price: low to high</option>
+                <option value="price-high" selected="@(Model.Sort == "price-high")">Price: high to low</option>
+                <option value="name" selected="@(Model.Sort == "name")">Name: A to Z</option>
+            </select>
+        </form>
+    </div>
+    <div class="category-pills" aria-label="Filter by category">
+        <a class="category-pill @(string.IsNullOrEmpty(Model.Category) ? "active" : "")" asp-controller="Menu" asp-action="Index" asp-route-q="@Model.Search" asp-route-sort="@Model.Sort" asp-route-diet="@(Model.Diet == "all" ? null : Model.Diet)">All dishes <span>✳</span></a>
+        @foreach (var category in Model.Categories)
+        {
+            <a class="category-pill @(Model.Category == category.Slug ? "active" : "") @(category.Slug == "non-veg" ? "nonveg-category-pill" : "")" asp-controller="Menu" asp-action="Index" asp-route-category="@category.Slug" asp-route-q="@Model.Search" asp-route-sort="@Model.Sort" asp-route-diet="@(category.Slug == "non-veg" ? "nonveg" : Model.Diet == "nonveg" ? null : Model.Diet == "all" ? null : Model.Diet)">@if (category.Slug == "non-veg") { <span class="veg-dot nonveg"></span> }@category.Name</a>
+        }
+    </div>
+    <div class="diet-filter-row"><span>Dietary preference</span><div class="diet-switch" role="group" aria-label="Dietary preference">
+        <a class="@(Model.Diet == "all" ? "active" : "")" asp-controller="Menu" asp-action="Index" asp-route-category="@Model.Category" asp-route-q="@Model.Search" asp-route-sort="@Model.Sort">All</a>
+        <a class="@(Model.Diet == "veg" ? "active" : "")" asp-controller="Menu" asp-action="Index" asp-route-category="@(Model.Category == "non-veg" ? null : Model.Category)" asp-route-q="@Model.Search" asp-route-sort="@Model.Sort" asp-route-diet="veg"><span class="veg-dot"></span> Veg</a>
+        <a class="@(Model.Diet == "nonveg" ? "active" : "")" asp-controller="Menu" asp-action="Index" asp-route-category="@(Model.Category is not null && Model.Category != "non-veg" ? null : Model.Category)" asp-route-q="@Model.Search" asp-route-sort="@Model.Sort" asp-route-diet="nonveg"><span class="veg-dot nonveg"></span> Non-Veg</a>
+    </div></div>
+    <div class="results-heading"><div><h2>@(Model.Category is null ? Model.Diet == "nonveg" ? "Non-Veg favorites" : Model.Diet == "veg" ? "Vegetarian favorites" : "All the good stuff" : Model.Categories.FirstOrDefault(c => c.Slug == Model.Category)?.Name ?? "Menu")</h2><span>@Model.TotalProducts @(Model.TotalProducts == 1 ? "dish" : "dishes") to explore</span></div><span class="results-aside">Freshly prepared, made your way.</span></div>
+    @if (Model.Products.Count > 0)
+    {
+        <div class="product-grid menu-grid">@foreach (var product in Model.Products) { <partial name="_ProductCard" model="product" /> }</div>
+        @if (Model.TotalPages > 1)
+        {
+            var visiblePages = Enumerable.Range(1, Model.TotalPages)
+                .Where(number => Model.TotalPages <= 7 || number == 1 || number == Model.TotalPages || Math.Abs(number - Model.Page) <= 2);
+            var lastShown = 0;
+            <nav class="menu-pagination" aria-label="Menu pages">
+                <p>Showing <strong>@Model.FirstResult–@Model.LastResult</strong> of <strong>@Model.TotalProducts</strong> dishes</p>
+                <div class="menu-pagination-links">
+                    @if (Model.Page > 1)
+                    {
+                        <a class="page-step" asp-controller="Menu" asp-action="Index" asp-route-category="@Model.Category" asp-route-q="@Model.Search" asp-route-sort="@Model.Sort" asp-route-diet="@(Model.Diet == "all" ? null : Model.Diet)" asp-route-page="@(Model.Page - 1)" aria-label="Previous page">← <span>Previous</span></a>
+                    }
+                    else
+                    {
+                        <span class="page-step disabled" aria-disabled="true">← <span>Previous</span></span>
+                    }
+                    @foreach (var number in visiblePages)
+                    {
+                        if (number > lastShown + 1)
+                        {
+                            <span class="page-ellipsis" aria-hidden="true">…</span>
+                        }
+                        <a class="page-number @(number == Model.Page ? "current" : "")" asp-controller="Menu" asp-action="Index" asp-route-category="@Model.Category" asp-route-q="@Model.Search" asp-route-sort="@Model.Sort" asp-route-diet="@(Model.Diet == "all" ? null : Model.Diet)" asp-route-page="@number" aria-label="Page @number" aria-current="@(number == Model.Page ? "page" : null)">@number</a>
+                        lastShown = number;
+                    }
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <a class="page-step" asp-controller="Menu" asp-action="Index" asp-route-category="@Model.Category" asp-route-q="@Model.Search" asp-route-sort="@Model.Sort" asp-route-diet="@(Model.Diet == "all" ? null : Model.Diet)" asp-route-page="@(Model.Page + 1)" aria-label="Next page"><span>Next</span> →</a>
+                    }
+                    else
+                    {
+                        <span class="page-step disabled" aria-disabled="true"><span>Next</span> →</span>
+                    }
+                </div>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="empty-state"><div class="empty-illustration" aria-hidden="true">✳</div><h2>No dishes found.</h2><p>Try a different search or browse all the good stuff.</p><a asp-controller="Menu" asp-action="Index" class="btn btn-dark">View the full menu <span class="btn-arrow">↗</span></a></div>
+    }
+</section>
+<section class="shell menu-bottom-note"><div><span aria-hidden="true">✳</span><strong>Find your favorite.</strong> Choose a dish, set your spice, pick your extras, and make it yours.</div><a asp-controller="Home" asp-action="Index" asp-fragment="favorites-title">See favorites ↗</a></section>

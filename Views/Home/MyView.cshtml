@@ -1,0 +1,62 @@
+@model HomeViewModel
+<section class="hero-section shell" aria-labelledby="hero-title">
+    <div class="hero-copy">
+        <span class="eyebrow hero-eyebrow"><span class="tiny-sun" aria-hidden="true">✳</span> @ViewBag.Greeting &nbsp; Good food awaits.</span>
+        <h1 id="hero-title">Food that makes<br />your <em>day.</em></h1>
+        <p>Freshly made meals for whatever you're craving. Find your favorites, take a moment, and let us take care of the rest.</p>
+        <div class="hero-buttons">
+            <a asp-controller="Menu" asp-action="Index" class="btn btn-dark">Explore the menu <span class="btn-arrow" aria-hidden="true">↗</span></a>
+            <a asp-controller="Home" asp-action="Index" asp-fragment="how-it-works" class="text-link">How it works <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="hero-bottom-note"><span class="avatar-stack" aria-hidden="true"><span>✳</span><span>♡</span><span>✦</span></span><span>Made fresh. Made for you.<br /><strong>Right here in Surat.</strong></span></div>
+    </div>
+    <div class="hero-photo">
+        <img src="~/images/hero-bowl.jpg" alt="Smoky paneer bowl with rice, avocado and fresh vegetables" fetchpriority="high" />
+        <div class="hero-image-label"><span class="hero-label-icon" aria-hidden="true">✳</span><span><strong>Fresh every day</strong><small>Good food, no shortcuts</small></span></div>
+    </div>
+</section>
+
+<div class="shell benefits-strip" aria-label="Why order from forkful">
+    <div class="benefit"><span class="benefit-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 20h20M8 20c0-7 3.5-11 8-11s8 4 8 11M5 24h22M16 9V6" stroke-linecap="round"/></svg></span><span><strong>Made fresh to order</strong><small>Because you can taste the difference</small></span></div>
+    <div class="benefit"><span class="benefit-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 10h17v13H4zM21 14h4l3 4v5h-7M8 23a2.5 2.5 0 1 0 5 0M22 23a2.5 2.5 0 1 0 5 0" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>Easy local delivery</strong><small>Good things come to your door</small></span></div>
+    <div class="benefit"><span class="benefit-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 27s-11-6.7-11-14a6 6 0 0 1 11-3.1A6 6 0 0 1 27 13c0 7.3-11 14-11 14Z" stroke-linejoin="round"/></svg></span><span><strong>Feel-good ingredients</strong><small>Thoughtful food for every mood</small></span></div>
+</div>
+
+<section class="section shell categories-section" aria-labelledby="categories-title">
+    <div class="section-heading"><div><span class="eyebrow">FIND YOUR CRAVING</span><h2 id="categories-title">What sounds <em>good?</em></h2><p>Something for every appetite, every kind of day.</p></div><a class="section-link" asp-controller="Menu" asp-action="Index">Explore all categories <span aria-hidden="true">↗</span></a></div>
+    <div class="category-grid">
+        @foreach (var category in Model.Categories.Where(c => c.SortOrder <= 3 || c.Slug == "non-veg"))
+        {
+            <a class="category-card" asp-controller="Menu" asp-action="Index" asp-route-category="@category.Slug">
+                <div class="category-image"><img src="@category.ImageUrl" alt="@category.Name" loading="lazy" /></div>
+                <div class="category-card-text"><strong>@category.Name</strong><span aria-hidden="true">↗</span></div>
+            </a>
+        }
+    </div>
+</section>
+
+<section class="section shell favorites-section" aria-labelledby="favorites-title">
+    <div class="section-heading"><div><span class="eyebrow">THE GOOD STUFF</span><h2 id="favorites-title">Loved for a <em>reason.</em></h2><p>The dishes our kitchen can't stop making.</p></div><a class="section-link" asp-controller="Menu" asp-action="Index">See the full menu <span aria-hidden="true">↗</span></a></div>
+    <div class="product-grid">
+        @foreach (var product in Model.Featured)
+        {
+            <partial name="_ProductCard" model="product" />
+        }
+    </div>
+</section>
+
+<section class="shell editorial-banner" id="story" aria-labelledby="banner-title">
+    <div class="editorial-copy"><span class="eyebrow light-eyebrow">A LITTLE MORE TO LOVE</span><h2 id="banner-title">Good food is<br /><em>good company.</em></h2><p>Real ingredients, comforting favorites and a little bit of joy in every bite. That's the forkful way.</p><a asp-controller="Menu" asp-action="Index" class="btn btn-light">Find your next favorite <span class="btn-arrow" aria-hidden="true">↗</span></a><span class="editorial-spark" aria-hidden="true">✳</span></div>
+    <div class="editorial-image"><img src="~/images/menu/pizza.jpg" alt="Freshly baked vegetable pizza" loading="lazy" /><span class="image-sticker">made with<br /><em>love</em> ♡</span></div>
+</section>
+
+<section class="section shell how-section" id="how-it-works" aria-labelledby="how-title">
+    <div class="section-heading center-heading"><span class="eyebrow">SIMPLE AS THAT</span><h2 id="how-title">Your happy place, <em>delivered.</em></h2><p>A delicious little routine in three easy steps.</p></div>
+    <div class="steps-grid">
+        <div class="step"><span class="step-number">01</span><div class="step-icon" aria-hidden="true">☰</div><h3>Pick your favorites</h3><p>Explore the menu and add whatever makes your mouth water.</p></div>
+        <div class="step"><span class="step-number">02</span><div class="step-icon" aria-hidden="true">✳</div><h3>We make it fresh</h3><p>Our kitchen gets to work on your order with care.</p></div>
+        <div class="step"><span class="step-number">03</span><div class="step-icon" aria-hidden="true">⌂</div><h3>Enjoy every bite</h3><p>Get it delivered to your door, or pick it up when you're ready.</p></div>
+    </div>
+</section>
+
+<section class="shell college-note" aria-label="About this student project"><span class="college-icon" aria-hidden="true">✳</span><div><strong>Made to learn. Made to enjoy.</strong><p>Inspired by the syllabus of <span>@ViewData["College"]</span> (AMTICS), a constituent institute of Uka Tarsadia University at Maliba Campus, Bardoli–Surat, Gujarat. <a href="https://www.utu.ac.in/AMTICS/" target="_blank" rel="noopener">About the institute ↗</a></p></div></section>
